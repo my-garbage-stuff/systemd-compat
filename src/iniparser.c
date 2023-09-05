@@ -8,6 +8,11 @@
 
 int status = 0;
 
+char ** strsplit(const char * s,
+    const char * delim);
+int strcount(char * buf, char * c);
+char * readlines(const char * filename);
+int iseq(char * str1, char * str2);
 
 char * get_area(char * ctx, char * name) {
     int len = strcount(ctx, "\n");
@@ -54,12 +59,6 @@ char * get_value(char * ctx, char * name) {
         }
     }
     return ret;
-}
-
-char* get_ini_data(char* file, char* section, char* variable){
-    char * area = get_area(readlines(file), section);
-    return get_value(area, variable);
-
 }
 
 int iseq(char * str1, char * str2) {

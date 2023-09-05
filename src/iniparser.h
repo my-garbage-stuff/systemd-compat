@@ -3,9 +3,7 @@
 #define FILE_TO_LARGE 2
 #define FILE_READ_ERROR 3
 
-char ** strsplit(const char * s,
-    const char * delim);
-int strcount(char * buf, char * c);
+char * get_value(char * ctx, char * name);
+char * get_area(char * ctx, char * name);
 char * readlines(const char * filename);
-int iseq(char * str1, char * str2);
-char* get_ini_data(char* file, char* section, char* variable);
+

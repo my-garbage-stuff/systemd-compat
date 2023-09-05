@@ -1,7 +1,14 @@
 #include <stdio.h>
 #include <iniparser.h>
-int main(){
-    char* data = get_ini_data("/lib/systemd/system/test.service","Service","ExecStart");
+#include <service.h>
+int main(int argc, char **argv){
+    if(argv[0] == "systemd"){
+        puts("You cannot run service directly!");
+        return 1;
+    }
+    load_service("test");
+    //load_service(argv[0]);
+    char* data = get_service_value("Service","ExecStart");
     puts(data);
     return 0;
 }
