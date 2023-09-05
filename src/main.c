@@ -16,7 +16,17 @@ int main(int argc, char **argv){
     }
     load_service("test");
     //load_service(argv[0]);
-    char* data = get_service_value("Service","ExecStart");
-    puts(data);
+    if( iseq(argv[1],"start")){
+        return run_action(TYPE_START);
+    } else if( iseq(argv[1],"stop")){
+        return run_action(TYPE_STOP);
+    } else if( iseq(argv[1],"start_pre")){
+        return run_action(TYPE_START_PRE);
+    } else if( iseq(argv[1],"stop_pre")){
+        return run_action(TYPE_STOP_PRE);
+    } else if( iseq(argv[1],"reload")){
+        return run_action(TYPE_RESTART);
+    }
+    puts("aaa");
     return 0;
 }
