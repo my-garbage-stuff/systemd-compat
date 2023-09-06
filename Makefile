@@ -12,4 +12,4 @@ clean:
 	rm -vfr build/
 
 install:
-	install -Dm755 service $(DESTDIR)/etc/init.d/systemd
+	install -Dm755 build/service $(DESTDIR)/etc/init.d/systemd
