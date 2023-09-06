@@ -29,20 +29,25 @@ int run_action(int type){
     switch (type){
         case TYPE_START:
             command = get_service_value("Service","ExecStart");
+            break;
         case TYPE_STOP:
             command = get_service_value("Service","ExecStop");
+            break;
         case TYPE_START_PRE:
             command = get_service_value("Service","ExecStartPre");
+            break;
         case TYPE_STOP_PRE:
             command = get_service_value("Service","ExecStopPre");
+            break;
         case TYPE_RESTART:
             command = get_service_value("Service","ExecReload");
+            break;
     }
     if(command){
         if(iseq(get_service_value("Service","Restart"),"always")){
-            while(1){
-                 system(command);
-            }
+            while(system(command) != -1);
+        }else if(iseq(get_service_value("Service","Restart"),"on-failture")){
+            while(system(command));
         }else {
             return system(command);
         }
