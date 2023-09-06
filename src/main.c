@@ -11,10 +11,10 @@ int main(int argc, char **argv){
     if (stat("/run/systemd/system/", &st) == -1) {
         mkdir("/run/systemd/system/", 0700);
     }
-    /*if(getpid()==1){
+    if(getpid()==1){
         char *a[] = {"/sbin/compat-init" , NULL};
         execvp("/sbin/compat-init",a);
-    }*/
+    }
     if(argv[0] == "systemd"){
         puts("You cannot run service directly!");
         return 1;
