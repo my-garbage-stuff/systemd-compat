@@ -14,12 +14,14 @@ build: $(OBJFILES)
 	sed -i "s|@prefix@|$(PREFIX)|g" build/systemd-compat.pc
 	$(CC) build/*.o -o build/libsystemd-compat.so -shared -fPIE
 	$(CC) src/main.c -o build/systemd-compat -lsystemd-compat -Lbuild -Isrc/include -fPIC
+	$(CC) src/init.c -o build/init -lsystemd-compat -Lbuild -Isrc/include -fPIC
 
 clean:
 	rm -vfr build/
 
 install:
 	install -Dm755 build/systemd-compat $(DESTDIR)/$(PREFIX)/$(BINDIR)/systemd-compat
+	install -Dm755 build/init $(DESTDIR)/$(PREFIX)/$(BINDIR)/systemd-compat-init
 	install -Dm755 build/libsystemd-compat.so $(DESTDIR)/$(PREFIX)/$(LIBDIR)/libsystemd-compat.so
 	mkdir -p $(DESTDIR)/etc/init.d/
 	ln -s ../../$(PREFIX)/$(BINDIR)/systemd-compat $(DESTDIR)/etc/init.d/systemd || true

@@ -1,29 +1,11 @@
-#include <stdio.h>
 #include <iniparser.h>
 #include <service.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <libgen.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 
 int main(int argc, char **argv){
-    struct stat st = {0};
-    if (stat("/run/systemd/system/", &st) == -1) {
-        mkdir("/run/systemd/system/", 0700);
-    }
-    if (stat("/sys/fs/cgroup/system/", &st) == -1) {
-        symlink("elogind", "/sys/fs/cgroup/systemd");
-    }
-    if(getpid()==1){
-        char *a[] = {"/sbin/compat-init" , NULL};
-        execvp("/sbin/compat-init",a);
-    }
-    if(argv[0] == "systemd"){
-        puts("You cannot run service directly!");
-        return 1;
-    }
     load_service(basename(argv[0]));
     if(0 == fork()){
         if( iseq(argv[1],"start")){
