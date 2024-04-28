@@ -1,51 +1,97 @@
 #!/bin/sh
-export PATH=/sbin:/bin:/usr/bin:/usr/sbin
+
+# Define the function to handle systemctl commands
 systemctl_command() {
-    if [ "$2" == "systemd" ] ; then
+    # If systemd is specified, exit successfully as it's already handled
+    if [ "$2" = "systemd" ] ; then
         exit 0
     fi
+    
+    # Check if the service file exists in systemd and if it's not present in init.d, create a symbolic link
     if [ -f "lib/systemd/system/$2.service" ] && ! [ -f "/etc/init.d/$2" ]; then
         ln -s systemd /etc/init.d/"$2"
     fi
+    
+    # If /etc/init.d.mask/ directory doesn't exist, create it
     if ! [ -d /etc/init.d.mask/ ] ; then
         mkdir -p /etc/init.d.mask/
     fi
-    if [ "$1" = "start" ]; then
-        exec rc-service "$2" start
-    elif [ "$1" = "stop" ]; then
-        exec rc-service "$2" stop
-    elif [ "$1" = "restart" ]; then
-        exec rc-service "$2" restart
-    elif [ "$1" = "enable" ]; then
-        exec rc-update add "$2" default
-    elif [ "$1" = "disable" ]; then
-        exec rc-update del "$2" default
-    elif [ "$1" = "mask" ]; then
-        if ! [ -f /etc/init.d.mask/"$2" ] ; then
-            mv /etc/init.d/"$1" /etc/init.d.mask/"$2"
-            ln -s /bin/true /etc/init.d/"$2"
-        else
-            echo "$2 is already masked"
+    
+    # Implement systemctl commands based on the provided arguments
+    case "$1" in
+        start)
+            exec rc-service "$2" start
+            ;;
+        stop)
+            exec rc-service "$2" stop
+            ;;
+        restart)
+            exec rc-service "$2" restart
+            ;;
+        status)
+            exec rc-service "$2" status
+            ;;
+        list-units)
+            exec rc-update show
+            ;;
+        list-unit-files)
+            exec rc-status -s
+            ;;
+        enable)
+            exec rc-update add "$2" default
+            ;;
+        disable)
+            exec rc-update del "$2" default
+            ;;
+        daemon-reload)
+            exit 0
+            ;;
+        mask)
+            # Mask the service by moving it to the mask directory and creating a symbolic link to /bin/true
+            if ! [ -f /etc/init.d.mask/"$2" ] ; then
+                mv /etc/init.d/"$1" /etc/init.d.mask/"$2"
+                ln -s /bin/true /etc/init.d/"$2"
+            else
+                echo "$2 is already masked"
+                exit 1
+            fi
+            ;;
+        unmask)
+            # Unmask the service by removing the symbolic link and moving it back from the mask directory
+            if [ -f /etc/init.d.mask/"$2" ] ; then
+                rm -f /etc/init.d/"$2"
+                mv /etc/init.d.mask/"$2" /etc/init.d/"$2"
+            else
+                echo "$2 is not masked"
+                exit 1
+            fi
+            ;;
+        *)
+            # Print an error message for invalid or unimplemented systemctl command
+            echo "Error: The systemctl command '$1' is either invalid or not implemented."
+            echo "Available commands:"
+            echo "  start             - Start a service"
+            echo "  stop              - Stop a service"
+            echo "  restart           - Restart a service"
+            echo "  status            - Get the status of a service"
+            echo "  list-units        - List all available units"
+            echo "  list-unit-files   - List all available unit files"
+            echo "  enable            - Enable a service to start at boot"
+            echo "  disable           - Disable a service from starting at boot"
+            echo "  daemon-reload     - Reload systemd manager configuration"
+            echo "  mask              - Mask a service to prevent it from being started"
+            echo "  unmask            - Unmask a previously masked service"
             exit 1
-        fi
-    elif [ "$1" = "unmask" ]; then
-        if ! [ -f /etc/init.d.mask/"$2" ] ; then
-            rm -f /etc/init.d/"$2"
-            mv /etc/init.d.mask/"$2" /etc/init.d/"$2"
-        else
-            echo "$2 is not masked"
-            exit 1
-        fi
-    else
-        echo "Invalid or not implemented systemctl command"
-        exit 1
-    fi
+            ;;
+    esac
 }
 
+# Check if the number of arguments is less than 2 and print usage information if so
 if [ $# -lt 2 ]; then
     echo "Usage: $0 <command> <service>"
     exit 1
 fi
 
+# Execute the systemctl_command function with the provided arguments
 systemctl_command "$1" "$2"
 
