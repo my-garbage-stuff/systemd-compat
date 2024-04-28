@@ -1,0 +1,51 @@
+#!/bin/sh
+export PATH=/sbin:/bin:/usr/bin:/usr/sbin
+systemctl_command() {
+    if [ "$2" == "systemd" ] ; then
+        exit 0
+    fi
+    if [ -f "lib/systemd/system/$2.service" ] && ! [ -f "/etc/init.d/$2" ]; then
+        ln -s systemd /etc/init.d/"$2"
+    fi
+    if ! [ -d /etc/init.d.mask/ ] ; then
+        mkdir -p /etc/init.d.mask/
+    fi
+    if [ "$1" = "start" ]; then
+        exec rc-service "$2" start
+    elif [ "$1" = "stop" ]; then
+        exec rc-service "$2" stop
+    elif [ "$1" = "restart" ]; then
+        exec rc-service "$2" restart
+    elif [ "$1" = "enable" ]; then
+        exec rc-update add "$2" default
+    elif [ "$1" = "disable" ]; then
+        exec rc-update del "$2" default
+    elif [ "$1" = "mask" ]; then
+        if ! [ -f /etc/init.d.mask/"$2" ] ; then
+            mv /etc/init.d/"$1" /etc/init.d.mask/"$2"
+            ln -s /bin/true /etc/init.d/"$2"
+        else
+            echo "$2 is already masked"
+            exit 1
+        fi
+    elif [ "$1" = "unmask" ]; then
+        if ! [ -f /etc/init.d.mask/"$2" ] ; then
+            rm -f /etc/init.d/"$2"
+            mv /etc/init.d.mask/"$2" /etc/init.d/"$2"
+        else
+            echo "$2 is not masked"
+            exit 1
+        fi
+    else
+        echo "Invalid or not implemented systemctl command"
+        exit 1
+    fi
+}
+
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 <command> <service>"
+    exit 1
+fi
+
+systemctl_command "$1" "$2"
+

@@ -28,3 +28,4 @@ install:
 	mkdir -p $(PREFIX)/include/systemd-compat
 	install -Dm755 src/include/* $(DESTDIR)/$(PREFIX)/include/systemd-compat/
 	install -Dm755 build/systemd-compat.pc $(DESTDIR)/$(PREFIX)/$(LIBDIR)/pkgconfig/
+	install -Dm755 script/systemctl $(DESTDIR)/$(PREFIX)/$(BINDIR)/systemctl
