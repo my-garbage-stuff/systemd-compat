@@ -1,4 +1,26 @@
 #!/bin/sh
+set -e
+
+if [ `id -u` -ne 0 ] ; then
+    echo "You must be root!"
+    exit 1
+fi
+
+# Define help message
+help_message(){
+    echo "Available commands:"
+    echo "  start             - Start a service"
+    echo "  stop              - Stop a service"
+    echo "  restart           - Restart a service"
+    echo "  status            - Get the status of a service"
+    echo "  list-units        - List all available units"
+    echo "  list-unit-files   - List all available unit files"
+    echo "  enable            - Enable a service to start at boot"
+    echo "  disable           - Disable a service from starting at boot"
+    echo "  daemon-reload     - Reload systemd manager configuration"
+    echo "  mask              - Mask a service to prevent it from being started"
+    echo "  unmask            - Unmask a previously masked service"
+}
 
 # Define the function to handle systemctl commands
 systemctl_command() {
@@ -69,26 +91,16 @@ systemctl_command() {
         *)
             # Print an error message for invalid or unimplemented systemctl command
             echo "Error: The systemctl command '$1' is either invalid or not implemented."
-            echo "Available commands:"
-            echo "  start             - Start a service"
-            echo "  stop              - Stop a service"
-            echo "  restart           - Restart a service"
-            echo "  status            - Get the status of a service"
-            echo "  list-units        - List all available units"
-            echo "  list-unit-files   - List all available unit files"
-            echo "  enable            - Enable a service to start at boot"
-            echo "  disable           - Disable a service from starting at boot"
-            echo "  daemon-reload     - Reload systemd manager configuration"
-            echo "  mask              - Mask a service to prevent it from being started"
-            echo "  unmask            - Unmask a previously masked service"
+            help_message
             exit 1
             ;;
     esac
 }
 
 # Check if the number of arguments is less than 2 and print usage information if so
-if [ $# -lt 2 ]; then
+if [ $# -lt 1 ]; then
     echo "Usage: $0 <command> <service>"
+    help_message
     exit 1
 fi
 
