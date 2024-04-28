@@ -30,7 +30,7 @@ systemctl_command() {
     fi
     
     # Check if the service file exists in systemd and if it's not present in init.d, create a symbolic link
-    if [ -f "lib/systemd/system/$2.service" ] && ! [ -f "/etc/init.d/$2" ]; then
+    if [ -f "/lib/systemd/system/$2.service" ] && ! [ -f "/etc/init.d/$2" ]; then
         ln -s systemd /etc/init.d/"$2"
     fi
     
